@@ -1,10 +1,13 @@
 package utils
 
 import (
+	"errors"
 	"image"
+	"image/jpeg"
 	"image/png"
 	"io"
 	"os"
+	"strings"
 )
 
 func CopyFile(src, dest string) error {
@@ -34,6 +37,12 @@ func CreateImg(src string) (image.Image, error) {
 		return nil, err
 	}
 	defer file.Close()
-	// Decode the PNG image
-	return png.Decode(file)
+	o := strings.ToLower(src)
+	if strings.HasSuffix(o, ".png") {
+		return png.Decode(file)
+	}
+	if strings.HasSuffix(o, ".jpg") || strings.HasSuffix(o, ".jpeg") {
+		return jpeg.Decode(file)
+	}
+	return nil, errors.New("only PNG and JPEG files are currently supported")
 }

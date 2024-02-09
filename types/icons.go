@@ -1,12 +1,10 @@
 package types
 
 import (
-	"errors"
 	"image"
 	"image/png"
 	"os"
 	"path"
-	"strings"
 
 	"github.com/jackmordaunt/icns"
 	"github.com/nfnt/resize"
@@ -21,23 +19,17 @@ type Icon struct {
 	Img      image.Image
 }
 
-var macIconSizes = []uint{16, 32, 64, 128, 256, 512}
-
 func NewIcon(filepath string, width, height int) (*Icon, error) {
-	// currently only working with PNG files
-	if strings.HasSuffix(filepath, ".png") || strings.HasSuffix(filepath, ".PNG") {
-		img, err := utils.CreateImg(filepath)
-		if err != nil {
-			return nil, err
-		}
-		return &Icon{
-			FilePath: filepath,
-			Width:    width,
-			Height:   height,
-			Img:      img,
-		}, nil
+	img, err := utils.CreateImg(filepath)
+	if err != nil {
+		return nil, err
 	}
-	return nil, errors.New("PNG and JPEG are the only image formats currently handled")
+	return &Icon{
+		FilePath: filepath,
+		Width:    width,
+		Height:   height,
+		Img:      img,
+	}, nil
 }
 
 func (i *Icon) Resample(outputFilePath string, width, height uint) error {
@@ -69,18 +61,6 @@ func (i *Icon) Resample(outputFilePath string, width, height uint) error {
 }
 
 func (i *Icon) CreateMacIcons(outputFolderPath string) error {
-	// imgFile, err := os.Open(i.FilePath)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// defer imgFile.Close()
-
-	// // Decode the image
-	// img, err := png.Decode(imgFile)
-	// if err != nil {
-	// 	return err
-	// }
-
 	// Create a new file for the ICNS encoder
 	out := path.Join(outputFolderPath, "icon.icns")
 	file, err := os.Create(out)

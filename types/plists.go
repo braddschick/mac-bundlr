@@ -70,27 +70,6 @@ func (p *AppPlist) CreatePlist(a App) error {
 }
 
 // private functions
-func splitCamelCase(s string) string {
-	var result string
-	for i, r := range s {
-		if i > 0 && (r >= 'A' && r <= 'Z') {
-			result += " "
-		}
-		result += string(r)
-	}
-	return result
-}
-
-func removeNonNumbers(s string) string {
-	var result string
-	for _, r := range s {
-		if (r >= '0' && r <= '9') || r == '.' {
-			result += string(r)
-		}
-	}
-	return result
-}
-
 func correctReverseDomain(s string) string {
 	if strings.HasPrefix(s, "com.") {
 		return s
