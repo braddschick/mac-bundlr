@@ -1,6 +1,8 @@
 // Thanks to https://gist.github.com/mattholt/2e4f9d729d3a5c8c2e8d3d7e7f7d6d6d
 // https://medium.com/@mattholt/packaging-a-go-application-for-macos-f7084b00f6b5
-//
+// and "howett.net/plist"
+// and "github.com/nfnt/resize"
+// and "github.com/jackmordaunt/icns"
 
 package main
 
@@ -10,7 +12,7 @@ import (
 	"log"
 	"path"
 
-	"macbuilder/types"
+	"mac-bundlr/types"
 )
 
 var (

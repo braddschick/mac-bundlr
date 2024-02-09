@@ -2,16 +2,16 @@ package types
 
 import (
 	"errors"
-	"fmt"
 	"image"
 	"image/png"
 	"os"
 	"path"
 	"strings"
 
+	"github.com/jackmordaunt/icns"
 	"github.com/nfnt/resize"
 
-	"macbuilder/utils"
+	"mac-bundlr/utils"
 )
 
 type Icon struct {
@@ -25,7 +25,7 @@ var macIconSizes = []uint{16, 32, 64, 128, 256, 512}
 
 func NewIcon(filepath string, width, height int) (*Icon, error) {
 	// currently only working with PNG files
-	if strings.HasSuffix(filepath, ".png") {
+	if strings.HasSuffix(filepath, ".png") || strings.HasSuffix(filepath, ".PNG") {
 		img, err := utils.CreateImg(filepath)
 		if err != nil {
 			return nil, err
@@ -37,7 +37,7 @@ func NewIcon(filepath string, width, height int) (*Icon, error) {
 			Img:      img,
 		}, nil
 	}
-	return nil, errors.New("PNG is the only image format currently handled")
+	return nil, errors.New("PNG and JPEG are the only image formats currently handled")
 }
 
 func (i *Icon) Resample(outputFilePath string, width, height uint) error {
@@ -69,22 +69,40 @@ func (i *Icon) Resample(outputFilePath string, width, height uint) error {
 }
 
 func (i *Icon) CreateMacIcons(outputFolderPath string) error {
-	// Create a new folder to save the resampled images
-	err := os.MkdirAll(outputFolderPath, os.ModePerm)
+	// imgFile, err := os.Open(i.FilePath)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// defer imgFile.Close()
+
+	// // Decode the image
+	// img, err := png.Decode(imgFile)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// Create a new file for the ICNS encoder
+	out := path.Join(outputFolderPath, "icon.icns")
+	file, err := os.Create(out)
 	if err != nil {
 		return err
 	}
-	for _, size := range macIconSizes {
-		err = i.Resample(path.Join(outputFolderPath, "icon_"+fmt.Sprint(size)+"x"+fmt.Sprint(size)+".png"), size, size)
-		if err != nil {
-			return err
-		}
-		err = i.Resample(path.Join(outputFolderPath, "icon_"+fmt.Sprint(size)+"x"+fmt.Sprint(size)+"@2x.png"), size*2, size*2)
-		if err != nil {
+	defer file.Close()
+
+	// Create a new ICNS encoder
+	encoder := icns.NewEncoder(file)
+
+	// Define the icon sizes
+	sizes := []uint{16, 32, 64, 128, 256, 512, 1024}
+
+	// Add each size to the encoder
+	for _, size := range sizes {
+		resized := resize.Resize(size, size, i.Img, resize.Lanczos3)
+		if err := encoder.Encode(resized); err != nil {
 			return err
 		}
 	}
-	return err
+	return nil
 }
 
 func (i *Icon) Exists() bool {

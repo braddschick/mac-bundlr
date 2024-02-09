@@ -4,7 +4,6 @@ import (
 	"errors"
 	"io"
 	"os"
-	"os/exec"
 	"path"
 )
 
@@ -79,36 +78,11 @@ func (a *App) CreateIcons() error {
 		return errors.New("no icon provided")
 	}
 	if a.Icon.Exists() {
-		err := a.Icon.CreateMacIcons(path.Join(a.AppPath, "Contents", "Resources", "icon.iconset"))
+		err := a.Icon.CreateMacIcons(path.Join(a.AppPath, "Contents", "Resources"))
 		if err != nil {
 			return err
-		} else {
-			err = iconUtil(path.Join(a.AppPath, "Contents", "Resources"))
-			if err != nil {
-				return err
-			}
-			// else {
-			// 	return os.RemoveAll(path.Join(a.AppPath, "Contents", "Resources", "icon.iconset"))
-			// }
 		}
 	}
 
 	return nil
-}
-
-// private function
-func iconUtil(resourcePath string) error {
-	_, err := os.Stat(resourcePath)
-	if err != nil {
-		return err
-	}
-	// Change working directory
-	err = os.Chdir(resourcePath)
-	if err != nil {
-		return err
-	}
-	// Continue with the rest of your code
-	cmd := exec.Command("iconutil", "-c", "icns", "icon.iconset")
-
-	return cmd.Run()
 }
